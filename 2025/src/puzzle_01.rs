@@ -31,6 +31,9 @@ impl Knob {
         } else {
             self.state = self.state - effective_amount;
         }
+        if self.state == 0 {
+            self.zero_passes += 1;
+        }
     }
 
     fn move_right(&mut self, amount: u32) {
@@ -45,6 +48,9 @@ impl Knob {
             self.state = result - 100;
         } else {
             self.state = result;
+        }
+        if self.state == 0 {
+            self.zero_passes += 1;
         }
     }
 
