@@ -67,7 +67,7 @@ pub fn puzzle_01_01() {
             knob_state = move_knob_right(knob_state, amount);
         }
         if knob_direction == "L" {
-            knob_state = move_knob_left(knob_state, amount, _);
+            knob_state = move_knob_left(knob_state, amount);
         }
         if knob_state == 0 {
             password += 1;
