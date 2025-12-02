@@ -14,31 +14,26 @@ impl Knob {
     }
 
     fn move_left(&mut self, amount: u32) {
-        if amount > 100 {
-            self.zero_passes += amount / 100;
-        }
+        self.zero_passes += amount / 100;
         let effective_amount = amount % 100;
         if effective_amount > self.state {
-            self.state = 100 - (effective_amount - self.state);
-            if self.state != 0 {
-                self.zero_passes += 1;
-            }
+            self.state = 100 - (effective_amount - self.state); // Wrap around
+            self.zero_passes += 1;
+        } else if effective_amount == self.state {
+            self.state = 0;
+            self.zero_passes += 1;
         } else {
             self.state = self.state - effective_amount;
         }
     }
 
     fn move_right(&mut self, amount: u32) {
-        if amount > 100 {
-            self.zero_passes += amount / 100;
-        }
+        self.zero_passes += amount / 100;
         let effective_amount = amount % 100;
         let result = self.state + effective_amount;
-        if result > 100 {
-            self.zero_passes += 1;
+        if result >= 100 {
             self.state = result - 100;
-        } else if result == 100 {
-            self.state = 0;
+            self.zero_passes += 1;
         } else {
             self.state = result;
         }
@@ -80,7 +75,6 @@ pub fn puzzle_01_01() {
 pub fn puzzle_01_02() {
     let instructions_to_decode = include_str!("puzzle_01_input.txt");
     let mut knob = Knob::new(50);
-    let mut password: u32 = 0;
 
     for instruction in instructions_to_decode.lines() {
         let knob_direction = &instruction[0..1];
@@ -94,10 +88,9 @@ pub fn puzzle_01_02() {
         if knob_direction == "L" {
             knob.move_left(amount);
         }
-        if knob.get_state() == 0 {
-            password += 1;
-        }
     }
-    password += knob.get_zero_passes();
-    println!("The password for Puzzle 01 Part 02 is: {password}");
+    println!(
+        "The password for Puzzle 01 Part 02 is: {}",
+        knob.get_zero_passes()
+    );
 }
