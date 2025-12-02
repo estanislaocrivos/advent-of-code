@@ -16,12 +16,18 @@ impl Knob {
     fn move_left(&mut self, amount: u32) {
         self.zero_passes += amount / 100;
         let effective_amount = amount % 100;
+        if effective_amount == 0 {
+            return;
+        }
         if effective_amount > self.state {
+            if self.state != 0 {
+                self.zero_passes += 1;
+            }
             self.state = 100 - (effective_amount - self.state); // Wrap around
             self.zero_passes += 1;
         } else if effective_amount == self.state {
-            self.state = 0;
             self.zero_passes += 1;
+            self.state = 0;
         } else {
             self.state = self.state - effective_amount;
         }
@@ -30,10 +36,13 @@ impl Knob {
     fn move_right(&mut self, amount: u32) {
         self.zero_passes += amount / 100;
         let effective_amount = amount % 100;
+        if effective_amount == 0 {
+            return;
+        }
         let result = self.state + effective_amount;
         if result >= 100 {
-            self.state = result - 100;
             self.zero_passes += 1;
+            self.state = result - 100;
         } else {
             self.state = result;
         }
