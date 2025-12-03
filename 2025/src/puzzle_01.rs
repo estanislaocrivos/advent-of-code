@@ -1,4 +1,4 @@
-const ENABLE_LOG: bool = false;
+const DEBUG_LOG_EN: bool = true;
 
 struct Knob {
     /// Current position of the knob, in the range [0, 99].
@@ -28,15 +28,25 @@ impl Knob {
     /// The state is always kept within the range [0, 99].
     /// # Arguments
     /// * `amount` - The amount to move the knob by.
+    ///
+    /// # Examples
+    ///
+    /// Another implementation without rem_euclid:
+    /// ```
+    /// fn move_knob(&mut self, amount: i32) {
+    ///     let mut result = self.state as i32 + amount;
+    ///     while result < 0 {
+    ///         result += 100;
+    ///     }
+    ///     while result >= 100 {
+    ///        result -= 100;
+    ///     }
+    ///     self.state = result as u32;
+    ///  }
+    /// ```
     fn move_knob(&mut self, amount: i32) {
-        let mut result = self.state as i32 + amount;
-        while result < 0 {
-            result += 100;
-        }
-        while result >= 100 {
-            result -= 100;
-        }
-        self.state = result as u32;
+        let new = (self.state as i32 + amount).rem_euclid(100); // Ensures wrapping within [0, 99]
+        self.state = new as u32;
     }
 
     fn move_left(&mut self, amount: u32) {
@@ -45,13 +55,18 @@ impl Knob {
         if effective_amount == 0 {
             return;
         }
-        self.move_knob(-(effective_amount as i32));
-        if ENABLE_LOG {
-            println!("Current state: {}", self.state);
-            println!("Effective amount: {}", effective_amount);
+        if DEBUG_LOG_EN {
+            print!(
+                "Current state: {}. Moving left by {}...",
+                self.state, effective_amount,
+            );
         }
+        self.move_knob(-(effective_amount as i32));
         if self.state == 0 {
             self.zero_position += 1;
+        }
+        if DEBUG_LOG_EN {
+            print!("New state: {}.\n\n", self.state);
         }
     }
 
@@ -61,13 +76,18 @@ impl Knob {
         if effective_amount == 0 {
             return;
         }
-        if ENABLE_LOG {
-            println!("Current state: {}", self.state);
-            println!("Effective amount: {}", effective_amount);
+        if DEBUG_LOG_EN {
+            print!(
+                "Current state: {}. Moving right by {}...",
+                self.state, effective_amount
+            );
         }
         self.move_knob(effective_amount as i32);
         if self.state == 0 {
             self.zero_position += 1;
+        }
+        if DEBUG_LOG_EN {
+            print!("New state: {}.\n\n", self.state);
         }
     }
 
@@ -87,7 +107,7 @@ pub fn puzzle_01_01() {
     for instruction in instructions_to_decode.lines() {
         let knob_direction = &instruction[0..1];
         let amount: u32 = instruction[1..].parse().expect("Not a valid number!");
-        if ENABLE_LOG {
+        if DEBUG_LOG_EN {
             println!("Instruction: {knob_direction} by {amount}");
         }
         if knob_direction == "R" {
@@ -110,7 +130,7 @@ pub fn puzzle_01_02() {
     for instruction in instructions_to_decode.lines() {
         let knob_direction = &instruction[0..1];
         let amount: u32 = instruction[1..].parse().expect("Not a valid number!");
-        if ENABLE_LOG {
+        if DEBUG_LOG_EN {
             println!("Instruction: {knob_direction} by {amount}");
         }
         if knob_direction == "R" {
