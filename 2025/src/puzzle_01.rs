@@ -1,5 +1,11 @@
 const DEBUG_LOG_EN: bool = true;
 
+macro_rules! puzzle_input {
+    () => {
+        include_str!("puzzle_01_input_test.txt")
+    };
+}
+
 struct Knob {
     /// Current position of the knob, in the range [0, 99].
     state: u32,
@@ -32,7 +38,7 @@ impl Knob {
     /// # Examples
     ///
     /// Another implementation without rem_euclid:
-    /// ```
+    /// ```text
     /// fn move_knob(&mut self, amount: i32) {
     ///     let mut result = self.state as i32 + amount;
     ///     while result < 0 {
@@ -57,7 +63,7 @@ impl Knob {
         }
         if DEBUG_LOG_EN {
             print!(
-                "Current state: {}. Moving left by {}...",
+                "Current state: {}. Moving left by {}... ",
                 self.state, effective_amount,
             );
         }
@@ -66,7 +72,10 @@ impl Knob {
             self.zero_position += 1;
         }
         if DEBUG_LOG_EN {
-            print!("New state: {}.\n\n", self.state);
+            print!(
+                "New state: {}. Number of zero passes: {}. Number of zero positions: {}\n\n",
+                self.state, self.zero_passes, self.zero_position
+            );
         }
     }
 
@@ -78,7 +87,7 @@ impl Knob {
         }
         if DEBUG_LOG_EN {
             print!(
-                "Current state: {}. Moving right by {}...",
+                "Current state: {}. Moving right by {}... ",
                 self.state, effective_amount
             );
         }
@@ -87,7 +96,10 @@ impl Knob {
             self.zero_position += 1;
         }
         if DEBUG_LOG_EN {
-            print!("New state: {}.\n\n", self.state);
+            print!(
+                "New state: {}. Number of zero passes: {}. Number of zero positions: {}\n\n",
+                self.state, self.zero_passes, self.zero_position
+            );
         }
     }
 
@@ -101,10 +113,10 @@ impl Knob {
 }
 
 pub fn puzzle_01_01() {
-    let instructions_to_decode = include_str!("puzzle_01_input.txt");
+    let instructions = puzzle_input!();
     let mut knob = Knob::new(50);
 
-    for instruction in instructions_to_decode.lines() {
+    for instruction in instructions.lines() {
         let knob_direction = &instruction[0..1];
         let amount: u32 = instruction[1..].parse().expect("Not a valid number!");
         if DEBUG_LOG_EN {
@@ -124,10 +136,10 @@ pub fn puzzle_01_01() {
 }
 
 pub fn puzzle_01_02() {
-    let instructions_to_decode = include_str!("puzzle_01_input.txt");
+    let instructions = puzzle_input!();
     let mut knob = Knob::new(50);
 
-    for instruction in instructions_to_decode.lines() {
+    for instruction in instructions.lines() {
         let knob_direction = &instruction[0..1];
         let amount: u32 = instruction[1..].parse().expect("Not a valid number!");
         if DEBUG_LOG_EN {
