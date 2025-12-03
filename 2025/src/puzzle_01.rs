@@ -2,7 +2,7 @@ const DEBUG_LOG_EN: bool = true;
 
 macro_rules! puzzle_input {
     () => {
-        include_str!("puzzle_01_input_test.txt")
+        include_str!("../resources/puzzle_01_input_example.txt")
     };
 }
 
