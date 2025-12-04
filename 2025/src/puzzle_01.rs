@@ -33,32 +33,15 @@ impl Knob {
     /// The amount can be positive (to the right) or negative (to the left).
     /// The state is always kept within the range [0, 99].
     /// # Arguments
-    /// * `amount` - The amount to move the knob by.
-    ///
-    /// # Examples
-    ///
-    /// Another implementation without rem_euclid:
-    /// ```text
-    /// fn move_knob(&mut self, amount: i32) {
-    ///     let mut result = self.state as i32 + amount;
-    ///     while result < 0 {
-    ///         result += 100;
-    ///     }
-    ///     while result >= 100 {
-    ///        result -= 100;
-    ///     }
-    ///     self.state = result as u32;
-    ///  }
-    /// ```
+    /// * `amount` - The amount to move the knob by. Can be positive or negative.
     fn move_knob(&mut self, amount: i32) {
         let new = (self.state as i32 + amount).rem_euclid(100); // Ensures wrapping within [0, 99]
         self.state = new as u32;
     }
 
     fn move_left(&mut self, amount: u32) {
-        if self.state != 0 {
-            self.zero_passes += amount / 100;
-        }
+        // When a move is greater or equal to a full turn, then it passes through zero the integer part of the move
+        self.zero_passes += amount / 100;
         let effective_amount = amount % 100;
         if effective_amount == 0 {
             return;
@@ -71,9 +54,11 @@ impl Knob {
         }
         let previous_state = self.state;
         self.move_knob(-(effective_amount as i32));
-        if self.state > previous_state && self.state != 0 && previous_state != 0 {
+        // If the knob moved left and the new state is greater than the previous one it means that is must have passed through zero. With the extra conditional of the prev. state not being zero
+        if self.state > previous_state && previous_state != 0 {
             self.zero_passes += 1;
         }
+        // When the knob has landed on zero, add to a position
         if self.state == 0 {
             self.zero_position += 1;
         }
@@ -86,9 +71,7 @@ impl Knob {
     }
 
     fn move_right(&mut self, amount: u32) {
-        if self.state != 0 {
-            self.zero_passes += amount / 100;
-        }
+        self.zero_passes += amount / 100;
         let effective_amount = amount % 100;
         if effective_amount == 0 {
             return;
@@ -101,9 +84,11 @@ impl Knob {
         }
         let previous_state = self.state;
         self.move_knob(effective_amount as i32);
-        if self.state < previous_state && self.state != 0 && previous_state != 0 {
+        // If the knob moved right and the new state is smaller than the previous one it means that is must have passed through zero. With the extra conditional of the current state not being zero
+        if self.state < previous_state && self.state != 0 {
             self.zero_passes += 1;
         }
+        // When the knob has landed on zero, add to a position
         if self.state == 0 {
             self.zero_position += 1;
         }
