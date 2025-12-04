@@ -1,8 +1,8 @@
-const DEBUG_LOG_EN: bool = true;
+const DEBUG_LOG_EN: bool = false;
 
 macro_rules! puzzle_input {
     () => {
-        include_str!("../resources/puzzle_01_input_example.txt")
+        include_str!("../resources/puzzle_01_input.txt")
     };
 }
 
@@ -56,7 +56,9 @@ impl Knob {
     }
 
     fn move_left(&mut self, amount: u32) {
-        self.zero_passes += amount / 100;
+        if self.state != 0 {
+            self.zero_passes += amount / 100;
+        }
         let effective_amount = amount % 100;
         if effective_amount == 0 {
             return;
@@ -67,7 +69,11 @@ impl Knob {
                 self.state, effective_amount,
             );
         }
+        let previous_state = self.state;
         self.move_knob(-(effective_amount as i32));
+        if self.state > previous_state && self.state != 0 && previous_state != 0 {
+            self.zero_passes += 1;
+        }
         if self.state == 0 {
             self.zero_position += 1;
         }
@@ -80,7 +86,9 @@ impl Knob {
     }
 
     fn move_right(&mut self, amount: u32) {
-        self.zero_passes += amount / 100;
+        if self.state != 0 {
+            self.zero_passes += amount / 100;
+        }
         let effective_amount = amount % 100;
         if effective_amount == 0 {
             return;
@@ -91,7 +99,11 @@ impl Knob {
                 self.state, effective_amount
             );
         }
+        let previous_state = self.state;
         self.move_knob(effective_amount as i32);
+        if self.state < previous_state && self.state != 0 && previous_state != 0 {
+            self.zero_passes += 1;
+        }
         if self.state == 0 {
             self.zero_position += 1;
         }
