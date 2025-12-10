@@ -14,28 +14,24 @@ pub fn puzzle_02_01() {
             continue;
         }
         let parts: Vec<&str> = range_str.split('-').collect();
-        if parts.len() == 2 {
-            let start: usize = parts[0].parse().unwrap();
-            let end: usize = parts[1].parse().unwrap();
-            for number in start..end + 1 {
-                // The idea is to try to split the number (considering it as a string) into two parts (e.g. number 123456 can be split into 123, 456)
-                if number_is_splittable(number.to_string(), 2) {
-                    // Then check if both parts are equal. If they are, you add it to solution
-                    match split_number_in_n_parts(number.to_string(), 2 as usize) {
-                        Ok(parts_array) => {
-                            if !parts_array.is_empty() {
-                                if is_invalid_id(parts_array) {
-                                    solution += number;
-                                }
-                            }
+        let start: usize = parts[0].parse().unwrap();
+        let end: usize = parts[1].parse().unwrap();
+        for number in start..end + 1 {
+            // The idea is to try to split the number (considering it as a string) into two parts (e.g. number 123456 can be split into 123, 456)
+            if number_is_splittable(number.to_string(), 2) {
+                // Then check if both parts are equal. If they are, you add it to solution
+                match split_number_in_n_parts(number.to_string(), 2 as usize) {
+                    Ok(parts_array) => {
+                        if is_invalid_id(parts_array) {
+                            solution += number;
                         }
-                        Err(error) => {
-                            print!("{}", error);
-                            continue;
-                        }
-                    };
-                    continue;
-                }
+                    }
+                    Err(error) => {
+                        print!("{}", error);
+                        continue;
+                    }
+                };
+                continue;
             }
         }
     }
@@ -52,30 +48,26 @@ pub fn puzzle_02_02() {
             continue;
         }
         let parts: Vec<&str> = range_str.split('-').collect();
-        if parts.len() == 2 {
-            let start: usize = parts[0].parse().unwrap();
-            let end: usize = parts[1].parse().unwrap();
-            for number in start..end + 1 {
-                // The idea is to start trying to split the number into divisible parts, starting from 2 up to the length of the number (in terms of number of chars) (e.g. if number is 12345 can only be split in 5)
-                for n_parts in 2..number.to_string().len() + 1 {
-                    if number_is_splittable(number.to_string(), n_parts) {
-                        match split_number_in_n_parts(number.to_string(), n_parts as usize) {
-                            Ok(parts_array) => {
-                                if !parts_array.is_empty() {
-                                    if is_invalid_id(parts_array) {
-                                        solution += number;
-                                        // Go to next number, avoid splitting more times if already found a solution (e.g. 2222 can be split in 2 and 4 parts, but should be only counted once)
-                                        break;
-                                    }
-                                }
+        let start: usize = parts[0].parse().unwrap();
+        let end: usize = parts[1].parse().unwrap();
+        for number in start..end + 1 {
+            // The idea is to start trying to split the number into divisible parts, starting from 2 up to the length of the number (in terms of number of chars) (e.g. if number is 12345 can only be split in 5 parts: 1, 2, 3, 4, 5)
+            for n_parts in 2..number.to_string().len() + 1 {
+                if number_is_splittable(number.to_string(), n_parts) {
+                    match split_number_in_n_parts(number.to_string(), n_parts as usize) {
+                        Ok(parts_array) => {
+                            if is_invalid_id(parts_array) {
+                                solution += number;
+                                // Go to next number, avoid splitting more times if already found a solution (e.g. 2222 can be split in 2 and 4 parts, but should be only counted once)
+                                break;
                             }
-                            Err(error) => {
-                                print!("{}", error);
-                                continue;
-                            }
-                        };
-                        continue;
-                    }
+                        }
+                        Err(error) => {
+                            print!("{}", error);
+                            continue;
+                        }
+                    };
+                    continue;
                 }
             }
         }
