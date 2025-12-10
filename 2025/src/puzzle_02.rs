@@ -1,51 +1,13 @@
-const DEBUG_LOG_EN: bool = false;
-
 macro_rules! puzzle_input {
     () => {
         include_str!("../resources/puzzle_02_input.csv")
     };
 }
 
-fn has_even_num_of_digits(number: String) -> bool {
-    let mut num_of_digits: u32 = 0;
-    for _ in number.chars() {
-        num_of_digits += 1;
-    }
-    if (num_of_digits % 2) == 0 {
-        return true;
-    }
-    return false;
-}
-
-#[derive(Debug)]
-struct SplitNumber {
-    high_part: String,
-    low_part: String,
-}
-
-fn split_number_in_two(number: String) -> SplitNumber {
-    let split_number_len = number.len() / 2;
-    let mut high_part: String = "".to_string();
-    let mut low_part: String = "".to_string();
-    let mut index = 0;
-    for digit in number.chars() {
-        index += 1;
-        if index <= split_number_len {
-            high_part.push(digit);
-        }
-        if index > split_number_len {
-            low_part.push(digit);
-        }
-    }
-    return SplitNumber {
-        high_part,
-        low_part,
-    };
-}
-
+/// Solution to Puzzle 02 Part 01
 pub fn puzzle_02_01() {
     let instructions = puzzle_input!();
-    let mut solution: u64 = 0;
+    let mut solution: usize = 0;
     for range_str in instructions.split(',') {
         let range_str = range_str.trim();
         if range_str.is_empty() {
@@ -53,51 +15,57 @@ pub fn puzzle_02_01() {
         }
         let parts: Vec<&str> = range_str.split('-').collect();
         if parts.len() == 2 {
-            let start: u64 = parts[0].parse().unwrap();
-            let end: u64 = parts[1].parse().unwrap();
+            let start: usize = parts[0].parse().unwrap();
+            let end: usize = parts[1].parse().unwrap();
             for number in start..end + 1 {
-                if has_even_num_of_digits(number.to_string()) {
-                    let split_num: SplitNumber = split_number_in_two(number.to_string());
-                    if split_num.low_part == split_num.high_part {
-                        if DEBUG_LOG_EN {
-                            println!("Found invalid ID: {}", number);
+                // The idea is to try to split the number (considering it as a string) into two parts (e.g. number 123456 can be split into 123, 456)
+                if number_is_splittable(number.to_string(), 2) {
+                    // Then check if both parts are equal. If they are, you add it to solution
+                    match split_number_in_n_parts(number.to_string(), 2 as usize) {
+                        Ok(parts_array) => {
+                            if !parts_array.is_empty() {
+                                if is_invalid_id(parts_array) {
+                                    solution += number;
+                                }
+                            }
                         }
-                        solution += number;
-                    }
+                        Err(error) => {
+                            print!("{}", error);
+                            continue;
+                        }
+                    };
+                    continue;
                 }
             }
         }
     }
     println!("The solution for Puzzle 02 Part 01 is: {}", solution);
+}
 
+/// Solution to Puzzle 02 Part 02
+pub fn puzzle_02_02() {
     let instructions = puzzle_input!();
-    let mut solution: u64 = 0;
+    let mut solution: usize = 0;
     for range_str in instructions.split(',') {
         let range_str = range_str.trim();
         if range_str.is_empty() {
             continue;
         }
         let parts: Vec<&str> = range_str.split('-').collect();
-        // let mut skip_to_next_number = false;
         if parts.len() == 2 {
-            let start: u64 = parts[0].parse().unwrap();
-            let end: u64 = parts[1].parse().unwrap();
+            let start: usize = parts[0].parse().unwrap();
+            let end: usize = parts[1].parse().unwrap();
             for number in start..end + 1 {
+                // The idea is to start trying to split the number into divisible parts, starting from 2 up to the length of the number (in terms of number of chars) (e.g. if number is 12345 can only be split in 5)
                 for n_parts in 2..number.to_string().len() + 1 {
                     if number_is_splittable(number.to_string(), n_parts) {
-                        // println!("{}", number);
-                        match split_number_in_n_parts(number.to_string(), n_parts as u8) {
+                        match split_number_in_n_parts(number.to_string(), n_parts as usize) {
                             Ok(parts_array) => {
-                                // println!("{:?}", parts_array);
                                 if !parts_array.is_empty() {
-                                    let first = &parts_array[0];
-                                    let all_equal = parts_array.iter().all(|part| part == first);
-                                    if all_equal {
-                                        // Todas las partes son iguales
-                                        // println!("add to solution");
+                                    if is_invalid_id(parts_array) {
                                         solution += number;
+                                        // Go to next number, avoid splitting more times if already found a solution (e.g. 2222 can be split in 2 and 4 parts, but should be only counted once)
                                         break;
-                                        // skip_to_next_number = true;
                                     }
                                 }
                             }
@@ -108,10 +76,6 @@ pub fn puzzle_02_01() {
                         };
                         continue;
                     }
-                    // if skip_to_next_number {
-                    //     skip_to_next_number = false;
-                    //     break;
-                    // }
                 }
             }
         }
@@ -119,18 +83,37 @@ pub fn puzzle_02_01() {
     println!("The solution for Puzzle 02 Part 02 is: {}", solution);
 }
 
-fn number_is_splittable(number: String, n_parts: usize) -> bool {
-    if (number.len() % n_parts) == 0 {
-        return true;
-    }
-    return false;
+/// Checks if an ID is invalid. An ID is considered invalid in the case that all the parts that compose the ID (already split) are equal to each other. For example, 123123 is an invalid ID because 123 and 123 are equal.
+/// # Arguments
+/// * `split_id` - A vector containing all the parts that compose the full ID.
+/// # Returns
+/// Returns true id the ID is invalid, false otherwise
+fn is_invalid_id(split_id: Vec<String>) -> bool {
+    let first = &split_id[0];
+    split_id.iter().all(|part| part == first)
 }
 
-fn split_number_in_n_parts(number: String, n_parts: u8) -> Result<Vec<String>, String> {
+/// Checks if a number can be evenly split into n_parts
+/// # Arguments
+/// * `number` - The number to be checked as a string
+/// * `n_parts` - The number of parts to split the number into
+/// # Returns
+/// Returns true if the number can be evenly split into n_parts, false otherwise
+fn number_is_splittable(number: String, n_parts: usize) -> bool {
+    number.len() % n_parts == 0
+}
+
+/// Splits a number into n_parts and returns a vector of strings representing each part
+/// # Arguments
+/// * `number` - The number to be split as a string
+/// * `n_parts` - The number of parts to split the number into
+/// # Errors
+/// Returns an error if the number cannot be evenly split into n_parts
+fn split_number_in_n_parts(number: String, n_parts: usize) -> Result<Vec<String>, String> {
     let len = number.len();
     let part_size = len / n_parts as usize;
     if part_size == 0 {
-        return Err("Too short to divide".to_string());
+        return Err("Number is too short to be split in n_parts".to_string());
     }
     let mut parts = Vec::new();
     let chars: Vec<char> = number.chars().collect();
