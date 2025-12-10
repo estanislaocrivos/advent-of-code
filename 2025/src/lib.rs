@@ -2,3 +2,4 @@
 
 mod puzzle_01;
 mod puzzle_02;
+mod puzzle_03;
