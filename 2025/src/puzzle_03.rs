@@ -13,7 +13,7 @@ macro_rules! puzzle_input {
     };
 }
 
-// For this part a simple double-iteration works. Another approach would be to take the biggest numbers in the bank and arrange them big * 10 + small (approach followed on part 2)
+// For this part a simple double-iteration works
 pub fn puzzle_03_01() {
     let battery_banks = puzzle_input!();
     let mut total_joltage: usize = 0;
@@ -44,6 +44,7 @@ pub fn puzzle_03_01() {
     );
 }
 
+// For this part, I look for the biggest number for position K in the range [start, end - K] for all 12 positions
 pub fn puzzle_03_02() {
     let battery_banks = puzzle_input!();
     let mut total_joltage: u64 = 0;
